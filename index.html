@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTech Pro | Gestão e Aprendizagem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --primary-color: #0d6efd; }
+        .course-card, .trilha-card { transition: transform 0.2s; border: none; cursor: pointer; }
+        .course-card:hover, .trilha-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .player-simulado { background: #212529; color: white; height: 350px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-direction: column; text-align: center; padding: 20px;}
+        .sidebar-aulas { max-height: 400px; overflow-y: auto; }
+        .aula-item { cursor: pointer; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .aula-ativa { border-left: 4px solid var(--primary-color); background: #f1f6ff; font-weight: bold; }
+        
+        #tela-certificado-real {
+            width: 800px; margin: 20px auto; padding: 50px; border: 15px solid #d4af37;
+            background: white; position: relative; text-align: center; font-family: 'Georgia', serif;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2); display: none;
+        }
+        #tela-certificado-real h1 { font-size: 3rem; color: #2c3e50; }
+        #tela-certificado-real .selo { width: 100px; height: 100px; background: #d4af37; border-radius: 50%; display: inline-block; margin-top: 20px; }
+        
+        .nav-admin .nav-link { color: #666; }
+        .nav-admin .nav-link.active { font-weight: bold; background: #eee; border-radius: 5px; }
+        .nota-item { border: 1px solid #ffc107; padding: 5px 15px; border-radius: 5px; cursor: pointer; color: #ffc107; font-weight: bold;}
+        .nota-item:hover { background: #ffc107; color: white; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#" onclick="location.reload()">EduTech Pro</a>
+            <div class="ms-auto">
+                <button class="btn btn-outline-light btn-sm me-2" onclick="alternarVisao('admin')">Visão Admin</button>
+                <button class="btn btn-primary btn-sm" onclick="alternarVisao('aluno')">Visão Aluno</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        <div id="visao-admin" class="d-none">
+            <h3 class="mb-4">Painel Administrativo</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="nav flex-column nav-pills nav-admin bg-white p-3 rounded shadow-sm">
+                        <button class="nav-link active mb-2" data-bs-toggle="pill" data-bs-target="#adm-cats">Categorias</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-cursos">Cursos</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-modulos">Módulos & Aulas</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-trilhas">Trilhas & Vínculos</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-planos">Planos (Financeiro)</button>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content bg-white p-4 rounded shadow-sm border">
+                        
+                        <div class="tab-pane fade show active" id="adm-cats">
+                            <div class="d-flex justify-content-between mb-3"><h5>Categorias</h5><button class="btn btn-sm btn-primary" onclick="abrirModal('modalCategoria')">+ Nova Categoria</button></div>
+                            <table class="table table-sm small"><tbody id="tbl-admin-categorias"></tbody></table>
+                        </div>
+
+                        <div class="tab-pane fade" id="adm-cursos">
+                            <div class="d-flex justify-content-between mb-3"><h5>Cursos</h5><button class="btn btn-sm btn-primary" onclick="abrirModal('modalCurso')">+ Novo Curso</button></div>
+                            <table class="table table-sm small"><tbody id="tbl-admin-cursos"></tbody></table>
+                        </div>
+
+                        <div class="tab-pane fade" id="adm-modulos">
+                            <div class="d-flex justify-content-between mb-3"><h5>Módulos & Aulas</h5><button class="btn btn-sm btn-success" onclick="abrirModal('modalModulo')">+ Novo Módulo</button></div>
+                            <div id="lista-admin-modulos-aulas"></div>
+                        </div>
+
+                        <div class="tab-pane fade" id="adm-trilhas">
+                            <div class="d-flex justify-content-between mb-3"><h5>Trilhas de Estudo</h5><button class="btn btn-sm btn-info text-white" onclick="abrirModal('modalTrilha')">+ Nova Trilha</button></div>
+                            <table class="table table-sm small mb-4"><tbody id="tbl-admin-trilhas"></tbody></table>
+                            
+                            <h6 class="border-top pt-3 mt-4">Vincular Curso a uma Trilha</h6>
+                            <form class="row g-2" onsubmit="event.preventDefault(); vincularCursoTrilha();">
+                                <div class="col-md-4"><select id="vin-trilha" class="form-select select-trilhas" required><option value="">Trilha</option></select></div>
+                                <div class="col-md-4"><select id="vin-curso" class="form-select select-cursos" required><option value="">Curso</option></select></div>
+                                <div class="col-md-2"><input type="number" id="vin-ordem" class="form-control" placeholder="Ordem" required></div>
+                                <div class="col-md-2"><button type="submit" class="btn btn-secondary w-100">Vincular</button></div>
+                            </form>
+                            <div id="lista-vinculos-trilha" class="mt-3 small"></div>
+                        </div>
+
+                        <div class="tab-pane fade" id="adm-planos">
+                            <div class="d-flex justify-content-between mb-3"><h5>Planos Financeiros</h5><button class="btn btn-sm btn-danger" onclick="abrirModal('modalPlano')">+ Novo Plano</button></div>
+                            <table class="table table-sm small"><tbody id="tbl-admin-planos"></tbody></table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="visao-aluno">
+            <div id="tela-vitrine-trilhas">
+                <h3 class="mb-4">Escolha o seu Caminho: Trilhas de Estudo</h3>
+                <div class="row" id="grid-vitrine-trilhas"></div>
+                
+                <div class="mt-5 pt-4 border-top">
+                    <h4 class="mb-3 text-success">Planos de Assinatura</h4>
+                    <p class="text-muted small">Assine um dos nossos planos para ter acesso ilimitado.</p>
+                    <div class="row" id="grid-vitrine-planos-aluno"></div>
+                </div>
+            </div>
+
+            <div id="tela-vitrine-cursos" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                    <h3 id="titulo-trilha-selecionada">Cursos da Trilha</h3>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="voltarParaTrilhas()">Voltar às Trilhas</button>
+                </div>
+                <div class="row" id="grid-vitrine-cursos"></div>
+            </div>
+
+            <div id="tela-sala-aula" class="d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h4 id="titulo-aula-header">Sala de Aula</h4>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="voltarParaCursos()">Sair da Aula</button>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="player-simulado shadow mb-3">
+                            <h2 id="video-titulo">Aula Selecionada</h2>
+                            <p class="text-muted mt-2 mb-4" id="video-desc">Descrição da aula...</p>
+                            <button class="btn btn-lg btn-success rounded-pill px-5" onclick="concluirAulaAtual()">Concluir Aula e Avançar</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm"><div class="card-header fw-bold">Conteúdo do Curso</div><div class="card-body p-0 sidebar-aulas" id="sidebar-aulas"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tela-certificado-real">
+                <p>CERTIFICADO DE CONCLUSÃO</p>
+                <h1>EduTech Pro</h1>
+                <p class="mt-4">Certificamos que</p>
+                <h2 id="cert-nome-aluno" class="text-primary">[Nome do Aluno]</h2>
+                <p>concluiu com êxito o curso de</p>
+                <h3 id="cert-nome-curso">[Nome do Curso]</h3>
+                <div class="mt-5 border-top pt-3 w-50 mx-auto">Assinatura da Direção Acadêmica</div>
+                <p class="small text-muted mt-4">Código de Autenticidade: <strong id="cert-codigo"></strong></p>
+                <div class="selo"></div>
+                <div class="mt-4"><button class="btn btn-dark" onclick="window.print()">Imprimir Diploma</button> <button class="btn btn-link" onclick="voltarParaTrilhas()">Voltar ao Início</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalCategoria" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarCategoria();"><div class="modal-header"><h5>Nova Categoria</h5></div><div class="modal-body">
+        <input type="text" id="cat-titulo" class="form-control mb-2" placeholder="Ex: Programação" required>
+        <textarea id="cat-desc" class="form-control" placeholder="Breve descrição da categoria" rows="2"></textarea>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Guardar Categoria</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalCurso" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarCurso();"><div class="modal-header"><h5>Novo Curso</h5></div><div class="modal-body">
+        <input type="text" id="cur-titulo" class="form-control mb-2" placeholder="Título" required>
+        <select id="cur-cat" class="form-select select-cats mb-2" required><option value="">Selecione a Categoria</option></select>
+        <input type="number" id="cur-horas" class="form-control mb-2" placeholder="Carga Horária (horas)" required>
+        <textarea id="cur-desc" class="form-control" placeholder="Descrição completa do curso" rows="3" required></textarea>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Criar Curso</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalModulo" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarModulo();"><div class="modal-header"><h5>Novo Módulo</h5></div><div class="modal-body">
+        <select id="mod-curso" class="form-select select-cursos mb-2" required><option value="">Vincular ao Curso</option></select>
+        <input type="text" id="mod-titulo" class="form-control" placeholder="Título do Módulo" required>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Adicionar Módulo</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalAula" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarAula();"><div class="modal-header"><h5>Nova Aula</h5></div><div class="modal-body">
+        <input type="hidden" id="aula-id-modulo">
+        <input type="text" id="aula-titulo" class="form-control mb-2" placeholder="Nome da Aula" required>
+        <textarea id="aula-desc" class="form-control" placeholder="Descrição do que será ensinado" rows="3"></textarea>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Adicionar Aula</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalTrilha" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarTrilha();"><div class="modal-header"><h5>Nova Trilha</h5></div><div class="modal-body">
+        <input type="text" id="tri-titulo" class="form-control mb-2" placeholder="Nome da Trilha" required>
+        <textarea id="tri-desc" class="form-control mb-2" placeholder="Descrição da jornada de estudos" rows="2" required></textarea>
+        <select id="tri-cat" class="form-select select-cats" required><option value="">Categoria Principal</option></select>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-info text-white w-100">Criar Trilha</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form onsubmit="event.preventDefault(); salvarPlano();"><div class="modal-header"><h5>Configurar Plano Financeiro</h5></div><div class="modal-body">
+        <input type="text" id="pla-nome" class="form-control mb-2" placeholder="Nome do Plano" required>
+        <input type="number" id="pla-preco" class="form-control mb-2" placeholder="Preço" required>
+        <input type="number" id="pla-meses" class="form-control" placeholder="Duração (meses)" required>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-danger w-100">Disponibilizar Plano</button></div></form></div></div></div>
+
+    <div class="modal fade" id="modalMatricula" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center"><h5>Crie a sua conta para começar</h5><form onsubmit="event.preventDefault(); confirmarMatricula();">
+        <input type="hidden" id="mat-id-curso">
+        <input type="text" id="mat-nome" class="form-control mb-2" placeholder="Nome Completo" required>
+        <input type="email" id="mat-email" class="form-control mb-2" placeholder="E-mail" required>
+        <input type="password" id="mat-senha" class="form-control mb-3" placeholder="Palavra-passe" required>
+        <button type="submit" class="btn btn-success w-100">Finalizar e Matricular</button>
+    </form></div></div></div>
+
+    <div class="modal fade" id="modalAvaliacao" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered modal-sm text-center"><div class="modal-content p-4">
+        <h6>Avalie o Curso</h6>
+        <p class="text-muted small">Dê uma nota à sua experiência:</p>
+        <div class="d-flex justify-content-center gap-2 my-3">
+            <span class="nota-item" onclick="enviarAvaliacao(1)">1</span>
+            <span class="nota-item" onclick="enviarAvaliacao(2)">2</span>
+            <span class="nota-item" onclick="enviarAvaliacao(3)">3</span>
+            <span class="nota-item" onclick="enviarAvaliacao(4)">4</span>
+            <span class="nota-item" onclick="enviarAvaliacao(5)">5</span>
+        </div>
+        <button class="btn btn-link btn-sm text-muted text-decoration-none" data-bs-dismiss="modal">Saltar por enquanto</button>
+    </div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="main.mjs"></script>
+</body>
+</html>

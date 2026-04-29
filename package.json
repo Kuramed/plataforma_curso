@@ -1,0 +1,12 @@
+{
+  "name": "plataforma_cursos",
+  "version": "1.0.0",
+  "description": "Plataforma_cursos",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "JOSE AUGUSTO",
+  "license": "ISC"
+}
