@@ -16,13 +16,25 @@ export class CoreService {
         
         const idCampo = Object.keys(dados).find(key => key.startsWith('id_'));
         const idValor = idCampo ? dados[idCampo] : null;
-        
-        const index = idValor ? lista.findIndex(item => item[idCampo] === idValor) : -1;
+
+        const ehEdicao = idValor && idValor.trim() !== "";
+
+        let index = -1;
+        if (ehEdicao) {
+            index = lista.findIndex(item => item[idCampo] === idValor);
+        }
 
         if (index !== -1) {
             lista[index] = { ...lista[index], ...dados };
         } else {
-            lista.push(new ClasseModelo(dados));
+            if (idCampo && (!dados[idCampo] || dados[idCampo].trim() === "")) {
+                delete dados[idCampo];
+            }
+            if (ClasseModelo === Object) {
+                lista.push(dados);
+            } else {
+                lista.push(new ClasseModelo(dados));
+            }
         }
 
         localStorage.setItem(tabela, JSON.stringify(lista)); 
