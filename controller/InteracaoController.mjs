@@ -150,17 +150,10 @@ function entrarNaSala(idCurso) {
     atualizarAula();
 }
 
-
 function atualizarAula() {
     const aula = aulasDoCurso[indexAtual];
     document.getElementById('video-titulo').innerText = aula.titulo;
-    
-    const displayDescricao = document.getElementById('video-desc');
-    if (aula.descricao && aula.descricao.trim() !== '') {
-        displayDescricao.innerHTML = aula.descricao.replace(/\n/g, '<br>');
-    } else {
-        displayDescricao.innerHTML = '<em>Nenhum conteúdo adicional disponível para esta aula.</em>';
-    }
+    document.getElementById('video-desc').innerText = aula.descricao || 'Sem descricao.';
     
     const progresso = svc.listar('tb_progresso').filter(p => p.id_usuario === alunoAtual.id_usuario);
     const concluidasIds = progresso.map(p => p.id_aula);
@@ -238,7 +231,7 @@ export function enviarAvaliacaoNota(nota) {
         const dadosAvaliacao = { id_usuario: alunoAtual.id_usuario, id_curso: cursoAtualId, nota: nota, comentario: 'Avaliado pelo aluno' };
         svc.salvar('tb_avaliacoes', dadosAvaliacao, Avaliacao);
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvaliacao')).hide();
-        alert(`Avaliação de ${nota} estrelas registada.`);
+        alert(`Avaliação de ${nota} valores registada.`);
     } catch (erro) {
         alert("Erro ao registar avaliação: " + erro.message);
     }

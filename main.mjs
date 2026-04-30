@@ -46,13 +46,13 @@ Object.assign(window, {
         bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
     },
 
-    
+    // ALUNOS
     prepararEdicaoAluno: InterCtrl.prepararEdicaoAluno,
     salvarAluno: InterCtrl.salvarAluno,
     visualizarCertificadoAdmin: InterCtrl.visualizarCertificadoAdmin,
     renderAdminAlunos: InterCtrl.renderAdminAlunos, 
 
-    
+    // ACADÉMICO
     prepararEdicaoCategoria: AcadCtrl.prepararEdicaoCategoria,
     prepararEdicaoCurso: AcadCtrl.prepararEdicaoCurso,
     prepararEdicaoModulo: AcadCtrl.prepararEdicaoModulo,
@@ -72,7 +72,7 @@ Object.assign(window, {
     salvarTrilha: AcadCtrl.salvarTrilha,
     vincularCursoTrilha: AcadCtrl.vincularCursoTrilha,
 
-    
+    // ALUNO INTERAÇÃO
     abrirTrilha: InterCtrl.abrirTrilha,
     iniciarMatricula: InterCtrl.iniciarMatricula,
     confirmarMatricula: InterCtrl.confirmarMatricula,
@@ -90,7 +90,7 @@ Object.assign(window, {
         document.getElementById('tela-vitrine-cursos').classList.remove('d-none'); 
     },
 
-    
+    // NEGÓCIO
     renderAdminPlanos: NegCtrl.renderAdminPlanos,
     salvarPlano: NegCtrl.salvarPlano
 });
