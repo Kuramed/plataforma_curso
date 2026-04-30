@@ -1,20 +1,44 @@
+export class Categoria {
+    constructor(dados) {
+        this.id_categoria = dados.id_categoria || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+    }
+}
+
+export class Curso {
+    constructor(dados) {
+        this.id_curso = dados.id_curso || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+        this.id_categoria = dados.id_categoria || '';
+        this.nivel = dados.nivel || '';
+        this.totalHoras = parseInt(dados.totalHoras) || 0;
+    }
+}
+
 export class Modulo {
-    constructor({ id_modulo = null, id_curso, titulo, ordem }) {
-        this.id_modulo = id_modulo ?? crypto.randomUUID();
-        this.id_curso = id_curso;
-        this.titulo = titulo;
-        this.ordem = parseInt(ordem);
+    constructor(dados) {
+        this.id_modulo = dados.id_modulo || crypto.randomUUID();
+        this.id_curso = dados.id_curso || '';
+        this.titulo = dados.titulo || '';
     }
 }
 
 export class Aula {
-    constructor({ id_aula = null, id_modulo, titulo, conteudoUrl, descricao = '', duracaoMinutos, ordem }) {
-        this.id_aula = id_aula ?? crypto.randomUUID();
-        this.id_modulo = id_modulo;
-        this.titulo = titulo;
-        this.conteudoUrl = conteudoUrl;
-        this.descricao = descricao; 
-        this.duracaoMinutos = parseInt(duracaoMinutos) || 10;
-        this.ordem = parseInt(ordem);
+    constructor(dados) {
+        this.id_aula = dados.id_aula || crypto.randomUUID();
+        this.id_modulo = dados.id_modulo || '';
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+    }
+}
+
+export class Trilha {
+    constructor(dados) {
+        this.id_trilha = dados.id_trilha || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+        this.id_categoria = dados.id_categoria || '';
     }
 }
