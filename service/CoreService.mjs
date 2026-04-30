@@ -1,7 +1,13 @@
 export class CoreService {
     listar(tabela) {
-        const dados = localStorage.getItem(tabela);
-        return dados ? JSON.parse(dados) : []; 
+        try {
+            const dados = localStorage.getItem(tabela);
+            const parsed = dados ? JSON.parse(dados) : []; 
+            // Garante que devolve sempre um Array, mesmo que o dado esteja corrompido
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return []; 
+        }
     }
 
     buscarPorId(tabela, id, idCampo) {
