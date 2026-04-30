@@ -1,32 +1,44 @@
 export class Categoria {
-    constructor({ id_categoria = null, nome, descricao = '' }) {
-        this.id_categoria = id_categoria ?? crypto.randomUUID();
-        this.nome = nome;
-        this.descricao = descricao;
+    constructor(dados) {
+        this.id_categoria = dados.id_categoria || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
     }
 }
 
 export class Curso {
-    constructor({ id_curso = null, titulo, descricao = '', id_categoria, nivel = 'Básico', totalHoras, id_instrutor, totalAulas = 0 }) {
-        this.id_curso = id_curso ?? crypto.randomUUID();
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.id_categoria = id_categoria;
-        this.nivel = nivel; 
-        this.totalHoras = parseInt(totalHoras) || 0;
-        this.id_instrutor = id_instrutor;
-        this.totalAulas = parseInt(totalAulas) || 0;
-        this.dataCriacao = new Date().toISOString();
+    constructor(dados) {
+        this.id_curso = dados.id_curso || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+        this.id_categoria = dados.id_categoria || '';
+        this.nivel = dados.nivel || '';
+        this.totalHoras = parseInt(dados.totalHoras) || 0;
     }
 }
 
-export class Usuario {
-    constructor({ id_usuario = null, nomeCompleto, email, senhaHash, tipo = 'Aluno' }) {
-        this.id_usuario = id_usuario ?? crypto.randomUUID();
-        this.nomeCompleto = nomeCompleto;
-        this.email = email;
-        this.senhaHash = senhaHash;
-        this.tipo = tipo;
-        this.dataCadastro = new Date().toISOString();
+export class Modulo {
+    constructor(dados) {
+        this.id_modulo = dados.id_modulo || crypto.randomUUID();
+        this.id_curso = dados.id_curso || '';
+        this.titulo = dados.titulo || '';
+    }
+}
+
+export class Aula {
+    constructor(dados) {
+        this.id_aula = dados.id_aula || crypto.randomUUID();
+        this.id_modulo = dados.id_modulo || '';
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+    }
+}
+
+export class Trilha {
+    constructor(dados) {
+        this.id_trilha = dados.id_trilha || crypto.randomUUID();
+        this.titulo = dados.titulo || '';
+        this.descricao = dados.descricao || '';
+        this.id_categoria = dados.id_categoria || '';
     }
 }
