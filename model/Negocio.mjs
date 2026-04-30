@@ -6,11 +6,7 @@ export class Plano {
         this.duracaoMeses = parseInt(duracaoMeses);
         this.descricao = descricao;
     }
-    static validar(dados) {
-        if (!dados.nome?.trim()) return ['O nome do plano é obrigatório'];
-        if (isNaN(dados.preco) || dados.preco < 0) return ['Preço inválido'];
-        return [];
-    }
+    static validar(dados) { return []; }
 }
 
 export class Pagamento {

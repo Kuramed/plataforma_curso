@@ -41,7 +41,6 @@
     </nav>
 
     <div class="container pb-5">
-        <!-- VISÃO ADMINISTRADOR -->
         <div id="visao-admin" class="d-none">
             <h3 class="mb-4">Painel Administrativo</h3>
             <div class="row">
@@ -52,6 +51,7 @@
                         <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-modulos">Módulos & Aulas</button>
                         <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-trilhas">Trilhas & Vínculos</button>
                         <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-planos">Planos (Financeiro)</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-alunos">Alunos & Matrículas</button>
                     </div>
                 </div>
                 <div class="col-md-9">
@@ -73,8 +73,8 @@
                             <table class="table table-sm small mb-4"><tbody id="tbl-admin-trilhas"></tbody></table>
                             <h6 class="border-top pt-3 mt-4">Vincular Curso a uma Trilha</h6>
                             <form id="form-vinculo" class="row g-2" onsubmit="event.preventDefault(); vincularCursoTrilha();">
-                                <div class="col-md-4"><select id="vin-trilha" class="form-select select-trilhas" required><option value="">Trilha</option></select></div>
-                                <div class="col-md-4"><select id="vin-curso" class="form-select select-cursos" required><option value="">Curso</option></select></div>
+                                <div class="col-md-4"><select id="vin-trilha" class="form-select select-trilhas" required><option value="">Selecione uma Trilha...</option></select></div>
+                                <div class="col-md-4"><select id="vin-curso" class="form-select select-cursos" required><option value="">Selecione um Curso...</option></select></div>
                                 <div class="col-md-2"><input type="number" id="vin-ordem" class="form-control" placeholder="Ordem (Ex: 1)" required></div>
                                 <div class="col-md-2"><button type="submit" class="btn btn-secondary w-100">Vincular</button></div>
                             </form>
@@ -84,17 +84,22 @@
                             <div class="d-flex justify-content-between mb-3"><h5>Planos Financeiros</h5><button class="btn btn-sm btn-danger" onclick="abrirModal('modalPlano')">+ Novo Plano</button></div>
                             <table class="table table-sm small"><tbody id="tbl-admin-planos"></tbody></table>
                         </div>
+                        <div class="tab-pane fade" id="adm-alunos">
+                            <div class="d-flex justify-content-between mb-3"><h5>Gestão de Alunos Matriculados</h5></div>
+                            <table class="table table-hover table-sm small">
+                                <thead><tr><th>Aluno</th><th>Cursos Matriculados</th><th>Status Financeiro</th></tr></thead>
+                                <tbody id="tbl-admin-alunos"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VISÃO ALUNO -->
         <div id="visao-aluno">
             <div id="tela-vitrine-trilhas">
                 <h3 class="mb-4">Escolha o seu Caminho: Trilhas de Estudo</h3>
                 <div class="row" id="grid-vitrine-trilhas"></div>
-                
                 <div class="mt-5 pt-4 border-top">
                     <h4 class="mb-3 text-success">Planos de Assinatura</h4>
                     <p class="text-muted small">Assine um dos nossos planos para ter acesso ilimitado.</p>
@@ -104,10 +109,7 @@
 
             <div id="tela-vitrine-cursos" class="d-none">
                 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                    <div>
-                        <h3 id="titulo-trilha-selecionada" class="mb-0">Cursos da Trilha</h3>
-                        <p class="text-muted small mb-0 mt-1">Siga a ordem dos módulos para desbloquear os próximos conteúdos.</p>
-                    </div>
+                    <div><h3 id="titulo-trilha-selecionada" class="mb-0">Cursos da Trilha</h3></div>
                     <button class="btn btn-outline-secondary btn-sm" onclick="voltarParaTrilhas()">Voltar às Trilhas</button>
                 </div>
                 <div class="row" id="grid-vitrine-cursos"></div>
@@ -147,49 +149,48 @@
         </div>
     </div>
 
-    <!-- MODAIS ADMIN -->
-    <div class="modal fade" id="modalCategoria" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-categoria" onsubmit="event.preventDefault(); salvarCategoria();"><div class="modal-header"><h5>Nova Categoria</h5></div><div class="modal-body">
+    <div class="modal fade" id="modalCategoria" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-categoria" onsubmit="event.preventDefault(); salvarCategoria();"><div class="modal-header"><h5 id="titulo-modal-cat">Nova Categoria</h5></div><div class="modal-body">
+        <input type="hidden" id="cat-id">
         <input type="text" id="cat-titulo" class="form-control mb-2" placeholder="Nome da Categoria" required>
         <textarea id="cat-desc" class="form-control" placeholder="Breve descrição" rows="2"></textarea>
     </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Guardar Categoria</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalCurso" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-curso" onsubmit="event.preventDefault(); salvarCurso();"><div class="modal-header"><h5>Novo Curso</h5></div><div class="modal-body">
+    <div class="modal fade" id="modalCurso" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-curso" onsubmit="event.preventDefault(); salvarCurso();"><div class="modal-header"><h5 id="titulo-modal-curso">Novo Curso</h5></div><div class="modal-body">
+        <input type="hidden" id="cur-id">
         <input type="text" id="cur-titulo" class="form-control mb-2" placeholder="Título" required>
-        <select id="cur-cat" class="form-select select-cats mb-2" required><option value="">Selecione a Categoria</option></select>
-        <select id="cur-nivel" class="form-select mb-2" required>
-            <option value="">Nível de Dificuldade</option>
-            <option value="Básico">Básico</option>
-            <option value="Intermediário">Intermediário</option>
-            <option value="Avançado">Avançado</option>
-        </select>
+        <select id="cur-cat" class="form-select select-cats mb-2" required><option value="">Selecione uma Categoria...</option></select>
+        <select id="cur-nivel" class="form-select mb-2" required><option value="">Nível de Dificuldade</option><option value="Básico">Básico</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select>
         <input type="number" id="cur-horas" class="form-control mb-2" placeholder="Carga Horária (horas)" required>
         <textarea id="cur-desc" class="form-control" placeholder="Descrição completa do curso" rows="3" required></textarea>
-    </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Criar Curso</button></div></form></div></div></div>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Guardar Curso</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalModulo" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-modulo" onsubmit="event.preventDefault(); salvarModulo();"><div class="modal-header"><h5>Novo Módulo</h5></div><div class="modal-body">
-        <select id="mod-curso" class="form-select select-cursos mb-2" required><option value="">Vincular ao Curso</option></select>
+    <div class="modal fade" id="modalModulo" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-modulo" onsubmit="event.preventDefault(); salvarModulo();"><div class="modal-header"><h5 id="titulo-modal-modulo">Novo Módulo</h5></div><div class="modal-body">
+        <input type="hidden" id="mod-id">
+        <select id="mod-curso" class="form-select select-cursos mb-2" required><option value="">Selecione um Curso...</option></select>
         <input type="text" id="mod-titulo" class="form-control" placeholder="Título do Módulo" required>
-    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Adicionar Módulo</button></div></form></div></div></div>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Guardar Módulo</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalAula" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-aula" onsubmit="event.preventDefault(); salvarAula();"><div class="modal-header"><h5>Nova Aula</h5></div><div class="modal-body">
+    <div class="modal fade" id="modalAula" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-aula" onsubmit="event.preventDefault(); salvarAula();"><div class="modal-header"><h5 id="titulo-modal-aula">Nova Aula</h5></div><div class="modal-body">
+        <input type="hidden" id="aula-id">
         <input type="hidden" id="aula-id-modulo">
         <input type="text" id="aula-titulo" class="form-control mb-2" placeholder="Nome da Aula" required>
-        <textarea id="aula-desc" class="form-control" placeholder="Descrição do que será ensinado" rows="3"></textarea>
-    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Adicionar Aula</button></div></form></div></div></div>
+        <textarea id="aula-desc" class="form-control" placeholder="Descrição da Aula (Aparece no player)" rows="3"></textarea>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-success w-100">Guardar Aula</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalTrilha" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-trilha" onsubmit="event.preventDefault(); salvarTrilha();"><div class="modal-header"><h5>Nova Trilha</h5></div><div class="modal-body">
+    <div class="modal fade" id="modalTrilha" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-trilha" onsubmit="event.preventDefault(); salvarTrilha();"><div class="modal-header"><h5 id="titulo-modal-trilha">Nova Trilha</h5></div><div class="modal-body">
+        <input type="hidden" id="tri-id">
         <input type="text" id="tri-titulo" class="form-control mb-2" placeholder="Nome da Trilha" required>
         <textarea id="tri-desc" class="form-control mb-2" placeholder="Descrição da jornada de estudos" rows="2" required></textarea>
-        <select id="tri-cat" class="form-select select-cats" required><option value="">Categoria Principal</option></select>
-    </div><div class="modal-footer"><button type="submit" class="btn btn-info text-white w-100">Criar Trilha</button></div></form></div></div></div>
+        <select id="tri-cat" class="form-select select-cats" required><option value="">Selecione uma Categoria...</option></select>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-info text-white w-100">Guardar Trilha</button></div></form></div></div></div>
 
-    <div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-plano" onsubmit="event.preventDefault(); salvarPlano();"><div class="modal-header"><h5>Configurar Plano Financeiro</h5></div><div class="modal-body">
+    <div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-plano" onsubmit="event.preventDefault(); salvarPlano();"><div class="modal-header"><h5 id="titulo-modal-plano">Configurar Plano Financeiro</h5></div><div class="modal-body">
+        <input type="hidden" id="pla-id">
         <input type="text" id="pla-nome" class="form-control mb-2" placeholder="Nome do Plano" required>
         <input type="number" id="pla-preco" class="form-control mb-2" placeholder="Preço" required>
         <input type="number" id="pla-meses" class="form-control" placeholder="Duração (meses)" required>
-    </div><div class="modal-footer"><button type="submit" class="btn btn-danger w-100">Disponibilizar Plano</button></div></form></div></div></div>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-danger w-100">Guardar Plano</button></div></form></div></div></div>
 
-    <!-- MODAIS ALUNO -->
     <div class="modal fade" id="modalMatricula" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center"><form id="form-matricula" onsubmit="event.preventDefault(); confirmarMatricula();">
         <h5 class="mb-3">Crie a sua conta para começar</h5>
         <input type="hidden" id="mat-id-curso">
@@ -199,13 +200,11 @@
         <button type="submit" class="btn btn-primary w-100 py-2">Matricular-me Neste Curso</button>
     </form></div></div></div>
 
-    <!-- Checkout Financeiro Real -->
     <div class="modal fade" id="modalCheckout" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center border-success border-2 shadow-lg">
         <h5 class="text-success fw-bold mb-3">🔒 Checkout Seguro</h5>
         <p class="text-muted mb-1">Você está prestes a adquirir o plano:</p>
         <h4 id="check-nome-plano" class="fw-bold"></h4>
         <h2 id="check-preco-plano" class="text-primary my-3"></h2>
-        <p class="small text-muted mb-4">O seu acesso premium será libertado imediatamente após a confirmação do pagamento.</p>
         <button class="btn btn-success btn-lg w-100 rounded-pill shadow-sm" onclick="confirmarPagamentoPlano()">Finalizar Compra Seguro</button>
         <button class="btn btn-link text-muted mt-2 text-decoration-none" data-bs-dismiss="modal">Cancelar operação</button>
     </div></div></div>
@@ -214,11 +213,7 @@
         <h6>Avalie o Curso</h6>
         <p class="text-muted small">Dê uma nota à sua experiência:</p>
         <div class="d-flex justify-content-center gap-2 my-3">
-            <span class="nota-item" onclick="enviarAvaliacao(1)">1</span>
-            <span class="nota-item" onclick="enviarAvaliacao(2)">2</span>
-            <span class="nota-item" onclick="enviarAvaliacao(3)">3</span>
-            <span class="nota-item" onclick="enviarAvaliacao(4)">4</span>
-            <span class="nota-item" onclick="enviarAvaliacao(5)">5</span>
+            <span class="nota-item" onclick="enviarAvaliacao(1)">1</span><span class="nota-item" onclick="enviarAvaliacao(2)">2</span><span class="nota-item" onclick="enviarAvaliacao(3)">3</span><span class="nota-item" onclick="enviarAvaliacao(4)">4</span><span class="nota-item" onclick="enviarAvaliacao(5)">5</span>
         </div>
         <button class="btn btn-link btn-sm text-muted text-decoration-none" data-bs-dismiss="modal">Saltar por enquanto</button>
     </div></div></div>

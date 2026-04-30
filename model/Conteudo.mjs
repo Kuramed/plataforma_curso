@@ -8,14 +8,13 @@ export class Modulo {
 }
 
 export class Aula {
-    // Adicionamos a 'descricao = ''' aqui no construtor e no 'this'
     constructor({ id_aula = null, id_modulo, titulo, conteudoUrl, descricao = '', duracaoMinutos, ordem }) {
         this.id_aula = id_aula ?? crypto.randomUUID();
         this.id_modulo = id_modulo;
         this.titulo = titulo;
         this.conteudoUrl = conteudoUrl;
-        this.descricao = descricao; // <-- O "segredo" está aqui!
-        this.duracaoMinutos = parseInt(duracaoMinutos);
+        this.descricao = descricao; // <--- AGORA A DESCRIÇÃO NUNCA MAIS SOME!
+        this.duracaoMinutos = parseInt(duracaoMinutos) || 10;
         this.ordem = parseInt(ordem);
     }
 }

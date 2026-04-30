@@ -7,7 +7,6 @@ export class Categoria {
 }
 
 export class Curso {
-    // Agora aceita e exige o nivel de dificuldade
     constructor({ id_curso = null, titulo, descricao = '', id_categoria, nivel = 'Básico', totalHoras, id_instrutor, totalAulas = 0 }) {
         this.id_curso = id_curso ?? crypto.randomUUID();
         this.titulo = titulo;

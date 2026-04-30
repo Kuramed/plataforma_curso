@@ -27,7 +27,7 @@ export function renderVitrineTrilhas() {
                 <div class="card-body text-center py-4 bg-light">
                     <h5 class="text-info fw-bold">${t.titulo}</h5>
                     <p class="text-muted small">${t.descricao}</p>
-                    <button class="btn btn-sm btn-info text-white mt-2 px-4 rounded-pill">Ver Roteiro de Cursos</button>
+                    <button class="btn btn-sm btn-info text-white mt-2 px-4 rounded-pill">Ver Roteiro</button>
                 </div>
             </div>
         </div>`).join('');
@@ -57,7 +57,7 @@ export function renderVitrinePlanosAluno() {
 
 export function prepararCheckout(idPlano, nome, preco) {
     if (!alunoAtual) {
-        alert("Para assinar um plano, por favor faça a matrícula inicial num curso primeiro para gerar o seu perfil!");
+        alert("Para assinar um plano, faça a matrícula inicial num curso primeiro para gerar o seu perfil!");
         return;
     }
     planoPendenteId = idPlano;
@@ -72,7 +72,6 @@ export function confirmarPagamentoPlano() {
         const dadosPg = { id_usuario: alunoAtual.id_usuario, valor: planoPendentePreco, status: 'Aprovado' };
         const dadosAss = { id_usuario: alunoAtual.id_usuario, id_plano: planoPendenteId, status: 'Ativa' };
         
-        // Agora envia as Classes corretas (Pagamento e Assinatura)
         svc.salvar('tb_pagamentos', dadosPg, Pagamento);
         svc.salvar('tb_assinaturas', dadosAss, Assinatura);
         
@@ -108,7 +107,7 @@ export function abrirTrilha(idTrilha, tituloTrilha) {
             let btnHtml = '';
 
             if (bloqueado) {
-                btnHtml = `<button class="btn btn-secondary w-100" disabled>🔒 Bloqueado</button><p class="small text-muted mt-2 mb-0">Conclua o curso anterior.</p>`;
+                btnHtml = `<button class="btn btn-secondary w-100" disabled>🔒 Bloqueado</button>`;
             } else if (concluidos.includes(c.id_curso)) {
                 btnHtml = `<button class="btn btn-success w-100 fw-bold" disabled>✅ Concluído</button>`;
             } else {
@@ -120,9 +119,7 @@ export function abrirTrilha(idTrilha, tituloTrilha) {
             return `
             <div class="col-md-4 mb-4">
                 <div class="card course-card h-100 shadow border-0 bg-white">
-                    <div class="card-header bg-transparent text-muted small fw-bold pt-3 pb-1 border-0">
-                        MÓDULO ${v.ordem}
-                    </div>
+                    <div class="card-header bg-transparent text-muted small fw-bold pt-3 pb-1 border-0">MÓDULO ${v.ordem}</div>
                     <div class="card-body text-center py-3">
                         <span class="badge bg-${badgeCor} mb-3">${c.nivel || 'Básico'}</span>
                         <h5 class="text-dark fw-bold mb-2">${c.titulo}</h5>
@@ -145,17 +142,14 @@ export function iniciarMatricula(id) {
 
 export function confirmarMatricula() {
     const cursoId = document.getElementById('mat-id-curso').value;
-    
     if (!alunoAtual) {
         alunoAtual = new Usuario({ nomeCompleto: document.getElementById('mat-nome').value, email: document.getElementById('mat-email').value, senhaHash: '...' });
         svc.salvar('tb_usuarios', alunoAtual, Usuario);
     }
-    
     svc.salvar('tb_matriculas', new Matricula({ id_usuario: alunoAtual.id_usuario, id_curso: cursoId }), Matricula);
     
     const modalMatricula = bootstrap.Modal.getInstance(document.getElementById('modalMatricula'));
     if (modalMatricula) modalMatricula.hide();
-    
     entrarNaSala(cursoId);
 }
 
@@ -165,8 +159,7 @@ function entrarNaSala(idCurso) {
     aulasDoCurso = svc.listar('tb_aulas').filter(a => modulos.some(m => m.id_modulo === a.id_modulo));
 
     if (aulasDoCurso.length === 0) {
-        alert("O curso não possui aulas cadastradas no sistema.");
-        return;
+        alert("O curso não possui aulas cadastradas no sistema."); return;
     }
 
     document.getElementById('tela-vitrine-cursos').classList.add('d-none');
@@ -175,7 +168,6 @@ function entrarNaSala(idCurso) {
     atualizarAula();
 }
 
-// 💡 FUNÇÃO RESTAURADA: Desenha o vídeo e a lista na ecrã
 function atualizarAula() {
     document.getElementById('video-titulo').innerText = aulasDoCurso[indexAtual].titulo;
     document.getElementById('video-desc').innerText = aulasDoCurso[indexAtual].descricao || 'Sem descrição adicional.';
@@ -196,29 +188,17 @@ export function concluirAulaAtual() {
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvaliacao')).show();
     }
     
-    if (indexAtual >= aulasDoCurso.length) {
-        concluirCursoAtual();
-    } else {
-        atualizarAula();
-    }
+    if (indexAtual >= aulasDoCurso.length) concluirCursoAtual();
+    else atualizarAula();
 }
 
 export function enviarAvaliacaoNota(nota) {
     try {
-        const dadosAvaliacao = {
-            id_usuario: alunoAtual.id_usuario,
-            id_curso: cursoAtualId,
-            nota: nota,
-            comentario: 'Avaliado pelo aluno durante a aula'
-        };
-        // Agora envia a classe Avaliacao corretamente
+        const dadosAvaliacao = { id_usuario: alunoAtual.id_usuario, id_curso: cursoAtualId, nota: nota, comentario: 'Avaliado pelo aluno' };
         svc.salvar('tb_avaliacoes', dadosAvaliacao, Avaliacao);
-        
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvaliacao')).hide();
-        alert(`Obrigado! A sua avaliação de ${nota} estrelas foi registada com sucesso.`);
-    } catch (erro) {
-        alert("Erro ao registar avaliação: " + erro.message);
-    }
+        alert(`Obrigado! A sua avaliação de ${nota} estrelas foi registada.`);
+    } catch (erro) { alert("Erro ao registar avaliação: " + erro.message); }
 }
 
 function concluirCursoAtual() {
@@ -229,9 +209,8 @@ function concluirCursoAtual() {
         const vinculos = svc.listar('tb_trilhas_cursos').filter(v => v.id_trilha === trilhaAtivaId).sort((a,b) => a.ordem - b.ordem);
         const eOUltimoCurso = vinculos[vinculos.length - 1].id_curso === cursoAtualId;
 
-        if (eOUltimoCurso) {
-            gerarCertificadoFinal('Trilha');
-        } else {
+        if (eOUltimoCurso) gerarCertificadoFinal('Trilha');
+        else {
             alert("Parabéns! Concluiu este módulo com sucesso. O próximo curso da sua trilha acaba de ser desbloqueado!");
             document.getElementById('tela-sala-aula').classList.add('d-none');
             const nomeTrilhaAtual = svc.listar('tb_trilhas').find(t => t.id_trilha === trilhaAtivaId).titulo;
@@ -246,21 +225,33 @@ function gerarCertificadoFinal(tipo) {
     document.getElementById('tela-sala-aula').classList.add('d-none');
     document.getElementById('tela-certificado-real').style.display = 'block';
     
-    let nomeCertificado = '';
-    
-    if (tipo === 'Trilha') {
-        const trilha = svc.listar('tb_trilhas').find(t => t.id_trilha === trilhaAtivaId);
-        nomeCertificado = trilha.titulo;
-        document.getElementById('cert-tipo-texto').innerText = "concluiu com êxito a trilha de conhecimento";
-    } else {
-        const curso = svc.listar('tb_cursos').find(c => c.id_curso === cursoAtualId);
-        nomeCertificado = curso.titulo;
-        document.getElementById('cert-tipo-texto').innerText = "concluiu com êxito o curso de";
-    }
-
-    const codVerificacao = crypto.randomUUID().split('-')[0].toUpperCase();
+    let nomeCertificado = tipo === 'Trilha' ? svc.listar('tb_trilhas').find(t => t.id_trilha === trilhaAtivaId).titulo : svc.listar('tb_cursos').find(c => c.id_curso === cursoAtualId).titulo;
+    document.getElementById('cert-tipo-texto').innerText = tipo === 'Trilha' ? "concluiu a trilha de conhecimento" : "concluiu o curso de";
 
     document.getElementById('cert-nome-aluno').innerText = alunoAtual.nomeCompleto;
     document.getElementById('cert-nome-curso').innerText = nomeCertificado;
-    document.getElementById('cert-codigo').innerText = codVerificacao;
+    document.getElementById('cert-codigo').innerText = crypto.randomUUID().split('-')[0].toUpperCase();
+}
+
+export function renderAdminAlunos() {
+    const alunos = svc.listar('tb_usuarios').filter(u => u.tipo === 'Aluno' || !u.tipo);
+    const matriculas = svc.listar('tb_matriculas');
+    const cursos = svc.listar('tb_cursos');
+    const assinaturas = svc.listar('tb_assinaturas');
+
+    const tbody = document.getElementById('tbl-admin-alunos');
+    if (!tbody) return;
+
+    tbody.innerHTML = alunos.length === 0 ? '<tr><td colspan="3" class="text-center text-muted">Nenhum aluno registado.</td></tr>' : alunos.map(aluno => {
+        const mats = matriculas.filter(m => m.id_usuario === aluno.id_usuario);
+        const nomesCursos = mats.map(m => {
+            const c = cursos.find(curso => curso.id_curso === m.id_curso);
+            return c ? c.titulo : 'Curso Eliminado';
+        }).join('<br>') || '<span class="text-muted">Sem matrículas</span>';
+
+        const temPlano = assinaturas.some(a => a.id_usuario === aluno.id_usuario && a.status === 'Ativa')
+            ? '<span class="badge bg-success">Premium</span>' : '<span class="badge bg-secondary">Gratuito</span>';
+
+        return `<tr><td><strong>${aluno.nomeCompleto}</strong><br><span class="text-muted small">${aluno.email}</span></td><td class="small">${nomesCursos}</td><td>${temPlano}</td></tr>`;
+    }).join('');
 }

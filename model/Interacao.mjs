@@ -29,8 +29,5 @@ export class Avaliacao {
         this.comentario = comentario;
         this.dataAvaliacao = dataAvaliacao ?? new Date().toISOString();
     }
-    static validar(dados) {
-        if (!dados.nota || dados.nota < 1 || dados.nota > 5) return ['A nota deve ser entre 1 e 5'];
-        return [];
-    }
+    static validar(dados) { return []; }
 }

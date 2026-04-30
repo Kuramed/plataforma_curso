@@ -17,6 +17,7 @@ Object.assign(window, {
             AcadCtrl.renderAdminModulosAulas(); 
             AcadCtrl.renderAdminTrilhas(); 
             NegCtrl.renderAdminPlanos(); 
+            InterCtrl.renderAdminAlunos(); 
         } else { 
             document.getElementById('tela-vitrine-cursos').classList.add('d-none');
             document.getElementById('tela-sala-aula').classList.add('d-none');
@@ -26,23 +27,30 @@ Object.assign(window, {
     },
 
     excluirItem: (tab, id, pk, renderFunctionName) => { 
-        // Intercetação Inteligente: Se for elemento académico base, usa a cascata
         if (['tb_categorias', 'tb_cursos', 'tb_modulos', 'tb_trilhas'].includes(tab)) {
             AcadCtrl.excluirCascata(tab, id, renderFunctionName);
         } else {
-            // Exclusão normal de itens sem dependentes (ex: uma Aula solta ou um Plano)
             if(confirm('Tem a certeza que deseja eliminar este item?')) { 
                 svc.excluir(tab, id, pk); 
-                if (typeof window[renderFunctionName] === 'function') {
-                    window[renderFunctionName]();
-                }
+                if (typeof window[renderFunctionName] === 'function') window[renderFunctionName]();
             }
         }
     },
 
-    abrirModal: (id) => bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show(),
+    abrirModal: (id) => {
+        document.querySelector(`#${id} form`)?.reset();
+        const hiddenId = document.querySelector(`#${id} input[type="hidden"]`);
+        if(hiddenId) hiddenId.value = '';
+        bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
+    },
 
-    // --- ACADÉMICO ---
+    prepararEdicaoCategoria: AcadCtrl.prepararEdicaoCategoria,
+    prepararEdicaoCurso: AcadCtrl.prepararEdicaoCurso,
+    prepararEdicaoModulo: AcadCtrl.prepararEdicaoModulo,
+    prepararEdicaoAula: AcadCtrl.prepararEdicaoAula,
+    prepararEdicaoTrilha: AcadCtrl.prepararEdicaoTrilha,
+    prepararEdicaoPlano: NegCtrl.prepararEdicaoPlano,
+
     renderAdminCategorias: AcadCtrl.renderAdminCategorias,
     renderAdminCursos: AcadCtrl.renderAdminCursos,
     renderAdminModulosAulas: AcadCtrl.renderAdminModulosAulas,
@@ -55,7 +63,6 @@ Object.assign(window, {
     salvarTrilha: AcadCtrl.salvarTrilha,
     vincularCursoTrilha: AcadCtrl.vincularCursoTrilha,
 
-    // --- ALUNO E FINANCEIRO ---
     abrirTrilha: InterCtrl.abrirTrilha,
     iniciarMatricula: InterCtrl.iniciarMatricula,
     confirmarMatricula: InterCtrl.confirmarMatricula,
