@@ -14,7 +14,7 @@ export function renderAdminPlanos() {
             <td>€ ${p.preco}</td>
             <td>${p.duracaoMeses} meses</td>
             <td class="text-end">
-                <button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_planos', '${p.id_plano}', 'id_plano', 'renderAdminPlanos')">Eliminar Plano</button>
+                <button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_planos', '${p.id_plano}', 'id_plano', 'renderAdminPlanos')">Eliminar</button>
             </td>
         </tr>`).join('');
 }
@@ -27,6 +27,9 @@ export function salvarPlano() {
         descricao: 'Acesso total à plataforma de estudos'
     };
     svc.salvar('tb_planos', dados, Plano);
-    bootstrap.Modal.getInstance(document.getElementById('modalPlano')).hide();
+    
+    document.getElementById('form-plano').reset(); // LIMPEZA
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalPlano')).hide();
+    
     renderAdminPlanos();
 }

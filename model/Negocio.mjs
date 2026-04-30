@@ -1,42 +1,36 @@
 export class Plano {
-    constructor({ id = null, nome, descricao, preco, duracaoMeses }) {
-        this.id_plano = id ?? crypto.randomUUID(); 
-        this.nome = nome; 
-        this.descricao = descricao; 
-        this.preco = preco; 
-        this.duracaoMeses = duracaoMeses; 
+    constructor({ id_plano = null, nome, preco, duracaoMeses, descricao = '' }) {
+        this.id_plano = id_plano ?? crypto.randomUUID();
+        this.nome = nome;
+        this.preco = parseFloat(preco);
+        this.duracaoMeses = parseInt(duracaoMeses);
+        this.descricao = descricao;
     }
-
     static validar(dados) {
-        const erros = [];
-        if (!dados.nome?.trim()) erros.push('Nome do Plano é obrigatório');
-        if (dados.preco === undefined || dados.preco === null) erros.push('Preço é obrigatório');
-        if (!dados.duracaoMeses) erros.push('Duração é obrigatória');
-        return erros;
-    }
-}
-
-export class Assinatura {
-    constructor({ id = null, id_usuario, id_plano, duracaoMeses }) {
-        this.id_assinatura = id ?? crypto.randomUUID(); 
-        this.id_usuario = id_usuario; 
-        this.id_plano = id_plano; 
-        
-        const dataAtual = new Date();
-        this.dataInicio = dataAtual.toISOString(); 
-        
-        dataAtual.setMonth(dataAtual.getMonth() + (duracaoMeses || 1));
-        this.dataFim = dataAtual.toISOString(); 
+        if (!dados.nome?.trim()) return ['O nome do plano é obrigatório'];
+        if (isNaN(dados.preco) || dados.preco < 0) return ['Preço inválido'];
+        return [];
     }
 }
 
 export class Pagamento {
-    constructor({ id = null, id_assinatura, valorPago, metodoPagamento, id_transacao_gateway }) {
-        this.id_pagamento = id ?? crypto.randomUUID(); 
-        this.id_assinatura = id_assinatura; 
-        this.valorPago = valorPago; 
-        this.dataPagamento = new Date().toISOString(); 
-        this.metodoPagamento = metodoPagamento; 
-        this.id_transacao_gateway = id_transacao_gateway; 
+    constructor({ id_pagamento = null, id_usuario, valor, status, dataPagamento = null }) {
+        this.id_pagamento = id_pagamento ?? crypto.randomUUID();
+        this.id_usuario = id_usuario;
+        this.valor = parseFloat(valor);
+        this.status = status;
+        this.dataPagamento = dataPagamento ?? new Date().toISOString();
     }
+    static validar(dados) { return []; }
+}
+
+export class Assinatura {
+    constructor({ id_assinatura = null, id_usuario, id_plano, status, dataInicio = null }) {
+        this.id_assinatura = id_assinatura ?? crypto.randomUUID();
+        this.id_usuario = id_usuario;
+        this.id_plano = id_plano;
+        this.status = status;
+        this.dataInicio = dataInicio ?? new Date().toISOString();
+    }
+    static validar(dados) { return []; }
 }

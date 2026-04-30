@@ -12,11 +12,11 @@ Object.assign(window, {
         document.getElementById('tela-certificado-real').style.display = 'none';
         
         if (v === 'admin') { 
-            renderAdminCategorias(); 
-            renderAdminCursos(); 
-            renderAdminModulosAulas(); 
-            renderAdminTrilhas(); 
-            renderAdminPlanos(); 
+            AcadCtrl.renderAdminCategorias(); 
+            AcadCtrl.renderAdminCursos(); 
+            AcadCtrl.renderAdminModulosAulas(); 
+            AcadCtrl.renderAdminTrilhas(); 
+            NegCtrl.renderAdminPlanos(); 
         } else { 
             document.getElementById('tela-vitrine-cursos').classList.add('d-none');
             document.getElementById('tela-sala-aula').classList.add('d-none');
@@ -26,15 +26,21 @@ Object.assign(window, {
     },
 
     excluirItem: (tab, id, pk, renderFunctionName) => { 
-        if(confirm('Tem a certeza que deseja eliminar este item e os seus dependentes?')) { 
-            svc.excluir(tab, id, pk); 
-            if (typeof window[renderFunctionName] === 'function') {
-                window[renderFunctionName]();
+        // Intercetação Inteligente: Se for elemento académico base, usa a cascata
+        if (['tb_categorias', 'tb_cursos', 'tb_modulos', 'tb_trilhas'].includes(tab)) {
+            AcadCtrl.excluirCascata(tab, id, renderFunctionName);
+        } else {
+            // Exclusão normal de itens sem dependentes (ex: uma Aula solta ou um Plano)
+            if(confirm('Tem a certeza que deseja eliminar este item?')) { 
+                svc.excluir(tab, id, pk); 
+                if (typeof window[renderFunctionName] === 'function') {
+                    window[renderFunctionName]();
+                }
             }
-        } 
+        }
     },
 
-    abrirModal: (id) => new bootstrap.Modal(document.getElementById(id)).show(),
+    abrirModal: (id) => bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show(),
 
     // --- ACADÉMICO ---
     renderAdminCategorias: AcadCtrl.renderAdminCategorias,
@@ -49,13 +55,15 @@ Object.assign(window, {
     salvarTrilha: AcadCtrl.salvarTrilha,
     vincularCursoTrilha: AcadCtrl.vincularCursoTrilha,
 
-    // --- ALUNO ---
+    // --- ALUNO E FINANCEIRO ---
     abrirTrilha: InterCtrl.abrirTrilha,
     iniciarMatricula: InterCtrl.iniciarMatricula,
     confirmarMatricula: InterCtrl.confirmarMatricula,
     concluirAulaAtual: InterCtrl.concluirAulaAtual,
     enviarAvaliacao: InterCtrl.enviarAvaliacaoNota,
-    assinarPlanoPremium: InterCtrl.assinarPlanoPremium,
+    prepararCheckout: InterCtrl.prepararCheckout,
+    confirmarPagamentoPlano: InterCtrl.confirmarPagamentoPlano,
+    
     voltarParaTrilhas: () => {
         document.getElementById('tela-vitrine-cursos').classList.add('d-none');
         document.getElementById('tela-certificado-real').style.display = 'none';
@@ -66,10 +74,8 @@ Object.assign(window, {
         document.getElementById('tela-vitrine-cursos').classList.remove('d-none');
     },
 
-    // --- FINANCEIRO ---
     renderAdminPlanos: NegCtrl.renderAdminPlanos,
     salvarPlano: NegCtrl.salvarPlano
 });
 
-// Inicia a aplicação
 document.addEventListener('DOMContentLoaded', () => InterCtrl.renderVitrineTrilhas());

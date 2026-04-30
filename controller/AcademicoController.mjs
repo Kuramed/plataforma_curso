@@ -19,9 +19,18 @@ export function atualizarSelects() {
     const cursos = svc.listar('tb_cursos');
     const trilhas = svc.listar('tb_trilhas');
     
-    document.querySelectorAll('.select-cats').forEach(el => el.innerHTML = '<option value="">Categoria</option>' + cats.map(c => `<option value="${c.id_categoria}">${c.nome}</option>`).join(''));
-    document.querySelectorAll('.select-cursos').forEach(el => el.innerHTML = '<option value="">Curso</option>' + cursos.map(c => `<option value="${c.id_curso}">${c.titulo}</option>`).join(''));
-    document.querySelectorAll('.select-trilhas').forEach(el => el.innerHTML = '<option value="">Trilha</option>' + trilhas.map(t => `<option value="${t.id_trilha}">${t.titulo}</option>`).join(''));
+    // Agora o texto padrão é inconfundível e não vai parecer um item registado
+    document.querySelectorAll('.select-cats').forEach(el => 
+        el.innerHTML = '<option value="">Selecione uma Categoria...</option>' + cats.map(c => `<option value="${c.id_categoria}">${c.nome}</option>`).join('')
+    );
+    
+    document.querySelectorAll('.select-cursos').forEach(el => 
+        el.innerHTML = '<option value="">Selecione um Curso...</option>' + cursos.map(c => `<option value="${c.id_curso}">${c.titulo}</option>`).join('')
+    );
+    
+    document.querySelectorAll('.select-trilhas').forEach(el => 
+        el.innerHTML = '<option value="">Selecione uma Trilha...</option>' + trilhas.map(t => `<option value="${t.id_trilha}">${t.titulo}</option>`).join('')
+    );
 }
 
 export function renderAdminCategorias() {
@@ -46,30 +55,16 @@ export function salvarCategoria() {
         const inputDesc = document.getElementById('cat-desc');
 
         if (!inputTitulo.value.trim()) {
-            alert("O nome da categoria é obrigatório!");
-            return;
+            alert("O nome da categoria é obrigatório!"); return;
         }
 
-        // AGORA SIM: Enviando 'nome' como o Model exige!
-        const dados = { 
-            nome: inputTitulo.value.trim(), 
-            descricao: inputDesc.value.trim() 
-        };
-        
+        const dados = { nome: inputTitulo.value.trim(), descricao: inputDesc.value.trim() };
         svc.salvar('tb_categorias', dados, Categoria);
         
-        inputTitulo.value = ''; 
-        inputDesc.value = '';
-        
-        const modalEl = document.getElementById('modalCategoria');
-        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-        
+        document.getElementById('form-categoria').reset(); 
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCategoria')).hide();
         renderAdminCategorias();
-        
-    } catch (erro) {
-        console.error(erro);
-        alert("Erro ao guardar Categoria: " + erro.message);
-    }
+    } catch (erro) { alert("Erro ao guardar Categoria: " + erro.message); }
 }
 
 export function renderAdminCursos() {
@@ -79,26 +74,29 @@ export function renderAdminCursos() {
 
     tbody.innerHTML = lista.map(c => `
         <tr>
-            <td>${c.titulo}</td>
+            <td>${c.titulo} <span class="badge bg-secondary ms-1">${c.nivel || 'Básico'}</span></td>
             <td>${c.totalHoras}h</td>
-            <td class="text-end">
-                <button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_cursos', '${c.id_curso}', 'id_curso', 'renderAdminCursos')">Eliminar</button>
-            </td>
+            <td class="text-end"><button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_cursos', '${c.id_curso}', 'id_curso', 'renderAdminCursos')">Eliminar</button></td>
         </tr>`).join('');
     atualizarSelects();
 }
 
 export function salvarCurso() {
-    const dados = {
-        titulo: document.getElementById('cur-titulo').value,
-        id_categoria: document.getElementById('cur-cat').value,
-        totalHoras: document.getElementById('cur-horas').value,
-        descricao: document.getElementById('cur-desc').value,
-        id_instrutor: 'inst-1', totalAulas: 0
-    };
-    svc.salvar('tb_cursos', dados, Curso);
-    bootstrap.Modal.getInstance(document.getElementById('modalCurso')).hide();
-    renderAdminCursos();
+    try {
+        const dados = {
+            titulo: document.getElementById('cur-titulo').value,
+            id_categoria: document.getElementById('cur-cat').value,
+            nivel: document.getElementById('cur-nivel').value,
+            totalHoras: document.getElementById('cur-horas').value,
+            descricao: document.getElementById('cur-desc').value,
+            id_instrutor: 'inst-1', totalAulas: 0
+        };
+        svc.salvar('tb_cursos', dados, Curso);
+        
+        document.getElementById('form-curso').reset();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCurso')).hide();
+        renderAdminCursos();
+    } catch (erro) { alert("Erro: " + erro.message); }
 }
 
 export function renderAdminModulosAulas() {
@@ -129,13 +127,14 @@ export function renderAdminModulosAulas() {
 
 export function salvarModulo() {
     svc.salvar('tb_modulos', { id_curso: document.getElementById('mod-curso').value, titulo: document.getElementById('mod-titulo').value, ordem: 1 }, Modulo);
-    bootstrap.Modal.getInstance(document.getElementById('modalModulo')).hide();
+    document.getElementById('form-modulo').reset();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalModulo')).hide();
     renderAdminModulosAulas();
 }
 
 export function prepararNovaAula(idModulo) {
     document.getElementById('aula-id-modulo').value = idModulo;
-    new bootstrap.Modal(document.getElementById('modalAula')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAula')).show();
 }
 
 export function salvarAula() {
@@ -147,7 +146,8 @@ export function salvarAula() {
         duracaoMinutos: 10, ordem: 1 
     };
     svc.salvar('tb_aulas', dados, Aula);
-    bootstrap.Modal.getInstance(document.getElementById('modalAula')).hide();
+    document.getElementById('form-aula').reset(); 
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAula')).hide();
     renderAdminModulosAulas();
 }
 
@@ -157,9 +157,7 @@ export function renderAdminTrilhas() {
     const cursos = svc.listar('tb_cursos');
     
     const tbody = document.getElementById('tbl-admin-trilhas');
-    if (tbody) {
-        tbody.innerHTML = trilhas.map(t => `<tr><td>${t.titulo}</td><td class="text-end"><button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_trilhas', '${t.id_trilha}', 'id_trilha', 'renderAdminTrilhas')">Eliminar</button></td></tr>`).join('');
-    }
+    if (tbody) tbody.innerHTML = trilhas.map(t => `<tr><td>${t.titulo}</td><td class="text-end"><button class="btn btn-sm btn-outline-danger border-0" onclick="excluirItem('tb_trilhas', '${t.id_trilha}', 'id_trilha', 'renderAdminTrilhas')">Eliminar</button></td></tr>`).join('');
 
     const listaVinculos = document.getElementById('lista-vinculos-trilha');
     if (listaVinculos) {
@@ -174,13 +172,71 @@ export function renderAdminTrilhas() {
 
 export function salvarTrilha() {
     svc.salvar('tb_trilhas', { titulo: document.getElementById('tri-titulo').value, descricao: document.getElementById('tri-desc').value, id_categoria: document.getElementById('tri-cat').value }, Trilha);
-    bootstrap.Modal.getInstance(document.getElementById('modalTrilha')).hide();
+    document.getElementById('form-trilha').reset(); 
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTrilha')).hide();
     renderAdminTrilhas();
 }
 
 export function vincularCursoTrilha() {
     const dados = { id_trilha: document.getElementById('vin-trilha').value, id_curso: document.getElementById('vin-curso').value, ordem: document.getElementById('vin-ordem').value };
     svc.salvar('tb_trilhas_cursos', dados, TrilhaCurso);
-    document.getElementById('vin-ordem').value = '';
+    document.getElementById('form-vinculo').reset();
     renderAdminTrilhas();
+}
+
+// ==========================================
+// MOTOR DE EXCLUSÃO EM CASCATA
+// ==========================================
+export function excluirCascata(tabela, id, callbackName) {
+    if(!confirm('Atenção: Eliminar este item apagará TAMBÉM todos os registos dependentes (cursos, módulos, aulas, etc.). Deseja continuar?')) return;
+
+    if (tabela === 'tb_categorias') {
+        const cursos = svc.listar('tb_cursos').filter(c => c.id_categoria === id);
+        cursos.forEach(c => excluirCursoDireto(c.id_curso));
+
+        const trilhas = svc.listar('tb_trilhas').filter(t => t.id_categoria === id);
+        trilhas.forEach(t => excluirTrilhaDireto(t.id_trilha));
+
+        svc.excluir('tb_categorias', id, 'id_categoria');
+    }
+    else if (tabela === 'tb_cursos') {
+        excluirCursoDireto(id);
+    }
+    else if (tabela === 'tb_modulos') {
+        excluirModuloDireto(id);
+    }
+    else if (tabela === 'tb_trilhas') {
+        excluirTrilhaDireto(id);
+    }
+
+    // Força a atualização visual de todas as abas para que nada fique "fantasma"
+    renderAdminCategorias();
+    renderAdminCursos();
+    renderAdminModulosAulas();
+    renderAdminTrilhas();
+}
+
+// Sub-funções de apoio à cascata
+function excluirCursoDireto(idCurso) {
+    const modulos = svc.listar('tb_modulos').filter(m => m.id_curso === idCurso);
+    modulos.forEach(m => excluirModuloDireto(m.id_modulo));
+
+    const vinculos = svc.listar('tb_trilhas_cursos').filter(v => v.id_curso === idCurso);
+    vinculos.forEach(v => svc.excluir('tb_trilhas_cursos', v.id_vinculo, 'id_vinculo'));
+
+    svc.excluir('tb_cursos', idCurso, 'id_curso');
+}
+
+function excluirModuloDireto(idModulo) {
+    const aulas = svc.listar('tb_aulas').filter(a => a.id_modulo === idModulo);
+    aulas.forEach(a => svc.excluir('tb_aulas', a.id_aula, 'id_aula'));
+
+    svc.excluir('tb_modulos', idModulo, 'id_modulo');
+}
+
+function excluirTrilhaDireto(idTrilha) {
+    const vinculos = svc.listar('tb_trilhas_cursos').filter(v => v.id_trilha === idTrilha);
+    vinculos.forEach(v => svc.excluir('tb_trilhas_cursos', v.id_vinculo, 'id_vinculo'));
+
+    svc.excluir('tb_trilhas', idTrilha, 'id_trilha');
 }
