@@ -1,13 +1,7 @@
 export class CoreService {
     listar(tabela) {
-        try {
-            const dados = localStorage.getItem(tabela);
-            const parsed = dados ? JSON.parse(dados) : []; 
-            // Garante que devolve sempre um Array, mesmo que o dado esteja corrompido
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (e) {
-            return []; 
-        }
+        const dados = localStorage.getItem(tabela);
+        return dados ? JSON.parse(dados) : []; 
     }
 
     buscarPorId(tabela, id, idCampo) {
@@ -22,25 +16,13 @@ export class CoreService {
         
         const idCampo = Object.keys(dados).find(key => key.startsWith('id_'));
         const idValor = idCampo ? dados[idCampo] : null;
-
-        const ehEdicao = idValor && idValor.trim() !== "";
-
-        let index = -1;
-        if (ehEdicao) {
-            index = lista.findIndex(item => item[idCampo] === idValor);
-        }
+        
+        const index = idValor ? lista.findIndex(item => item[idCampo] === idValor) : -1;
 
         if (index !== -1) {
             lista[index] = { ...lista[index], ...dados };
         } else {
-            if (idCampo && (!dados[idCampo] || dados[idCampo].trim() === "")) {
-                delete dados[idCampo];
-            }
-            if (ClasseModelo === Object) {
-                lista.push(dados);
-            } else {
-                lista.push(new ClasseModelo(dados));
-            }
+            lista.push(new ClasseModelo(dados));
         }
 
         localStorage.setItem(tabela, JSON.stringify(lista)); 
