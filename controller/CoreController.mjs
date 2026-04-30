@@ -3,7 +3,7 @@ import { Usuario, Curso } from '../model/Core.mjs';
 
 const svc = new CoreService();
 
-// --- GESTÃO DE USUÁRIOS ---
+
 export function renderUsuarios() {
     const tbody = document.getElementById('tbl-usuarios');
     const lista = svc.listar('tb_usuarios');
@@ -53,7 +53,7 @@ export function excluirUsuario(id) {
     renderUsuarios();
 }
 
-// --- GESTÃO DE CURSOS ---
+
 export function renderCursos() {
     const grid = document.getElementById('grid-cursos');
     const lista = svc.listar('tb_cursos');

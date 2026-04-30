@@ -30,7 +30,7 @@ export function atualizarSelects() {
     );
 }
 
-// === CATEGORIAS ===
+
 export function renderAdminCategorias() {
     const lista = svc.listar('tb_categorias');
     const tbody = document.getElementById('tbl-admin-categorias');
@@ -73,7 +73,7 @@ export function salvarCategoria() {
     } catch (erro) { alert("Erro ao guardar Categoria: " + erro.message); }
 }
 
-// === CURSOS ===
+
 export function renderAdminCursos() {
     const lista = svc.listar('tb_cursos');
     const tbody = document.getElementById('tbl-admin-cursos');
@@ -126,7 +126,7 @@ export function salvarCurso() {
     } catch (erro) { alert("Erro: " + erro.message); }
 }
 
-// === MÓDULOS E AULAS ===
+
 export function renderAdminModulosAulas() {
     const modulos = svc.listar('tb_modulos');
     const aulas = svc.listar('tb_aulas');
@@ -217,7 +217,7 @@ export function salvarAula() {
     renderAdminModulosAulas();
 }
 
-// === TRILHAS ===
+
 export function renderAdminTrilhas() {
     const trilhas = svc.listar('tb_trilhas');
     const vinculos = svc.listar('tb_trilhas_cursos');
@@ -271,7 +271,7 @@ export function vincularCursoTrilha() {
     renderAdminTrilhas();
 }
 
-// === EXCLUSÃO EM CASCATA ===
+
 export function excluirCascata(tabela, id, callbackName) {
     if(!confirm('Atenção: Eliminar este item apagará TAMBÉM todos os registos dependentes (cursos, módulos, aulas, etc.). Deseja continuar?')) return;
     if (tabela === 'tb_categorias') {

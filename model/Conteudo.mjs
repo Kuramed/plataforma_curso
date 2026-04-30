@@ -13,7 +13,7 @@ export class Aula {
         this.id_modulo = id_modulo;
         this.titulo = titulo;
         this.conteudoUrl = conteudoUrl;
-        this.descricao = descricao; // <--- AGORA A DESCRIÇÃO NUNCA MAIS SOME!
+        this.descricao = descricao; 
         this.duracaoMinutos = parseInt(duracaoMinutos) || 10;
         this.ordem = parseInt(ordem);
     }

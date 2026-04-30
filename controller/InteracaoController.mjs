@@ -150,7 +150,7 @@ function entrarNaSala(idCurso) {
     atualizarAula();
 }
 
-// CORREÇÃO APLICADA: Agora renderiza a descrição corretamente formatada com quebras de linha
+
 function atualizarAula() {
     const aula = aulasDoCurso[indexAtual];
     document.getElementById('video-titulo').innerText = aula.titulo;
