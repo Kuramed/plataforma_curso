@@ -17,7 +17,7 @@ export function renderVitrineTrilhas() {
     trilhaAtivaId = null; 
     const lista = svc.listar('tb_trilhas');
     const grid = document.getElementById('grid-vitrine-trilhas');
-    grid.innerHTML = lista.length === 0 ? '<p>Nenhuma trilha disponível.</p>' : lista.map(t => `
+    grid.innerHTML = lista.length === 0 ? '<p class="text-muted">Nenhuma trilha disponível no momento.</p>' : lista.map(t => `
         <div class="col-md-4 mb-4">
             <div class="card trilha-card h-100 shadow-sm border-info" onclick="abrirTrilha('${t.id_trilha}', '${t.titulo}')">
                 <div class="card-body text-center py-4 bg-light">
@@ -34,7 +34,7 @@ export function renderVitrinePlanosAluno() {
     const planos = svc.listar('tb_planos');
     const grid = document.getElementById('grid-vitrine-planos-aluno');
     if(!grid) return;
-    grid.innerHTML = planos.length === 0 ? '<p>Sem planos disponíveis.</p>' : planos.map(p => `
+    grid.innerHTML = planos.length === 0 ? '<p class="text-muted small">Sem planos disponíveis.</p>' : planos.map(p => `
         <div class="col-md-4 mb-3">
             <div class="card text-center shadow-sm border-success">
                 <div class="card-header bg-success text-white fw-bold">${p.nome}</div>
@@ -48,8 +48,12 @@ export function renderVitrinePlanosAluno() {
 }
 
 export function prepararCheckout(idPlano, nome, preco) {
-    if (!alunoAtual) { alert("Realize a matrícula inicial num curso para criar o seu perfil."); return; }
-    planoPendenteId = idPlano; planoPendentePreco = preco;
+    if (!alunoAtual) { 
+        alert("Realize a matrícula inicial num curso para criar o seu perfil."); 
+        return; 
+    }
+    planoPendenteId = idPlano; 
+    planoPendentePreco = preco;
     document.getElementById('check-nome-plano').innerText = nome;
     document.getElementById('check-preco-plano').innerText = `EUR ${preco}`;
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalCheckout')).show();
@@ -74,27 +78,53 @@ export function abrirTrilha(idTrilha, tituloTrilha) {
     const concluidos = svc.listar('tb_certificados').filter(c => c.id_usuario === alunoAtual?.id_usuario).map(c => c.id_curso);
 
     let menorOrdemPendente = Infinity;
-    vinculos.forEach(v => { if (!concluidos.includes(v.id_curso) && v.ordem < menorOrdemPendente) menorOrdemPendente = v.ordem; });
+    vinculos.forEach(v => { 
+        if (!concluidos.includes(v.id_curso) && v.ordem < menorOrdemPendente) {
+            menorOrdemPendente = v.ordem;
+        }
+    });
 
     document.getElementById('grid-vitrine-cursos').innerHTML = vinculos.map(v => {
         const c = cursos.find(curso => curso.id_curso === v.id_curso);
         if(!c) return '';
         const isBloqueado = v.ordem > menorOrdemPendente;
-        let btn = isBloqueado ? `<button class="btn btn-secondary w-100" disabled>[Bloqueado]</button>` : (concluidos.includes(c.id_curso) ? `<button class="btn btn-success w-100" disabled>[Concluido]</button>` : `<button class="btn btn-primary w-100" onclick="iniciarMatricula('${c.id_curso}')">Iniciar</button>`);
-        return `<div class="col-md-4 mb-4"><div class="card h-100 shadow border-0"><div class="card-header bg-transparent small fw-bold">MODULO ${v.ordem}</div><div class="card-body text-center"><h5>${c.titulo}</h5><p class="small">${c.totalHoras}h</p>${btn}</div></div></div>`;
+        let btn = isBloqueado 
+            ? `<button class="btn btn-secondary w-100" disabled>[Bloqueado]</button>` 
+            : (concluidos.includes(c.id_curso) 
+                ? `<button class="btn btn-success w-100" disabled>[Concluido]</button>` 
+                : `<button class="btn btn-primary w-100" onclick="iniciarMatricula('${c.id_curso}')">Iniciar</button>`);
+                
+        return `
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow border-0">
+                <div class="card-header bg-transparent small fw-bold">MODULO ${v.ordem}</div>
+                <div class="card-body text-center">
+                    <h5>${c.titulo}</h5>
+                    <p class="small text-muted">${c.totalHoras}h</p>
+                    ${btn}
+                </div>
+            </div>
+        </div>`;
     }).join('');
 }
 
 export function iniciarMatricula(id) {
     document.getElementById('mat-id-curso').value = id;
-    if (alunoAtual) confirmarMatricula(); 
-    else bootstrap.Modal.getOrCreateInstance(document.getElementById('modalMatricula')).show();
+    if (alunoAtual) {
+        confirmarMatricula(); 
+    } else {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalMatricula')).show();
+    }
 }
 
 export function confirmarMatricula() {
     const cursoId = document.getElementById('mat-id-curso').value;
     if (!alunoAtual) {
-        alunoAtual = new Usuario({ nomeCompleto: document.getElementById('mat-nome').value, email: document.getElementById('mat-email').value, senhaHash: document.getElementById('mat-senha').value });
+        alunoAtual = new Usuario({ 
+            nomeCompleto: document.getElementById('mat-nome').value, 
+            email: document.getElementById('mat-email').value, 
+            senhaHash: document.getElementById('mat-senha').value 
+        });
         svc.salvar('tb_usuarios', alunoAtual, Usuario);
     }
     svc.salvar('tb_matriculas', { id_usuario: alunoAtual.id_usuario, id_curso: cursoId, dataMatricula: new Date().toISOString() }, Matricula);
@@ -159,7 +189,9 @@ function concluirCursoAtual() {
             document.getElementById('tela-sala-aula').classList.add('d-none');
             abrirTrilha(trilhaAtivaId, svc.listar('tb_trilhas').find(t => t.id_trilha === trilhaAtivaId).titulo);
         }
-    } else gerarCertificadoFinal('Curso', codigo);
+    } else {
+        gerarCertificadoFinal('Curso', codigo);
+    }
 }
 
 function gerarCertificadoFinal(tipo, codigo) {
@@ -178,12 +210,12 @@ function gerarCertificadoFinal(tipo, codigo) {
         const cursos = svc.listar('tb_cursos');
         vinculos.forEach(v => {
             const c = cursos.find(x => x.id_curso === v.id_curso);
-            if (c) totalHoras += parseInt(c.totalHoras);
+            if (c) totalHoras += parseInt(c.totalHoras) || 0;
         });
     } else {
         const curso = svc.listar('tb_cursos').find(c => c.id_curso === cursoAtualId);
         nome = curso.titulo;
-        totalHoras = curso.totalHoras;
+        totalHoras = curso.totalHoras || 0;
         document.getElementById('cert-tipo-texto').innerText = "concluiu o curso de";
     }
 
@@ -199,7 +231,7 @@ export function enviarAvaliacaoNota(nota) {
         const dadosAvaliacao = { id_usuario: alunoAtual.id_usuario, id_curso: cursoAtualId, nota: nota, comentario: 'Avaliado pelo aluno' };
         svc.salvar('tb_avaliacoes', dadosAvaliacao, Avaliacao);
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvaliacao')).hide();
-        alert(`Avaliação de ${nota} estrelas registada.`);
+        alert(`Avaliação de ${nota} valores registada.`);
     } catch (erro) {
         alert("Erro ao registar avaliação: " + erro.message);
     }
@@ -227,7 +259,8 @@ export function renderAdminAlunos() {
         if (assAtiva) {
             const p = planos.find(x => x.id_plano === assAtiva.id_plano);
             if (p) {
-                const exp = new Date(assAtiva.dataInicio); exp.setMonth(exp.getMonth() + p.duracaoMeses);
+                const exp = new Date(assAtiva.dataInicio); 
+                exp.setMonth(exp.getMonth() + p.duracaoMeses);
                 statusFin = `Premium - Expira: ${exp.toLocaleDateString('pt-PT')}`;
             }
         }
@@ -237,7 +270,16 @@ export function renderAdminAlunos() {
             return `Certificado: ${nomeC} <button class="btn btn-link btn-sm p-0" onclick="visualizarCertificadoAdmin('${c.id_certificado}')">[Ver]</button>`;
         }).join('<br>') || 'Nenhum';
 
-        return `<tr><td>${aluno.nomeCompleto}<br><small>${aluno.email}</small></td><td>${nomesCursos}</td><td>${statusFin}</td><td>${certs}</td><td class="text-end"><button class="btn btn-sm btn-outline-warning me-1" onclick="prepararEdicaoAluno('${aluno.id_usuario}')">Editar</button><button class="btn btn-sm btn-outline-danger" onclick="excluirItem('tb_usuarios', '${aluno.id_usuario}', 'id_usuario', 'renderAdminAlunos')">Eliminar</button></td></tr>`;
+        return `<tr>
+                    <td>${aluno.nomeCompleto}<br><small>${aluno.email}</small></td>
+                    <td>${nomesCursos}</td>
+                    <td>${statusFin}</td>
+                    <td>${certs}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="prepararEdicaoAluno('${aluno.id_usuario}')">Editar</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="excluirItem('tb_usuarios', '${aluno.id_usuario}', 'id_usuario', 'renderAdminAlunos')">Eliminar</button>
+                    </td>
+                </tr>`;
     }).join('');
 }
 
@@ -266,14 +308,14 @@ export function visualizarCertificadoAdmin(idCertificado) {
 
     if (cert.id_curso) {
         const c = svc.listar('tb_cursos').find(x => x.id_curso === cert.id_curso);
-        if (c) { nome = c.titulo; horas = c.totalHoras; }
+        if (c) { nome = c.titulo; horas = c.totalHoras || 0; }
     } else if (cert.id_trilha) {
         const t = svc.listar('tb_trilhas').find(x => x.id_trilha === cert.id_trilha);
         if (t) { 
             nome = t.titulo; tipoTexto = "concluiu a trilha de conhecimento";
             svc.listar('tb_trilhas_cursos').filter(v => v.id_trilha === cert.id_trilha).forEach(v => {
                 const cur = svc.listar('tb_cursos').find(x => x.id_curso === v.id_curso);
-                if (cur) horas += parseInt(cur.totalHoras);
+                if (cur) horas += parseInt(cur.totalHoras) || 0;
             });
         }
     }

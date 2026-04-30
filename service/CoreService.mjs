@@ -1,5 +1,3 @@
-import { Usuario, Categoria, Curso } from '../model/Core.mjs';
-
 export class CoreService {
     listar(tabela) {
         const dados = localStorage.getItem(tabela);
@@ -15,24 +13,28 @@ export class CoreService {
         if (erros.length) throw new Error(erros.join(' | ')); 
 
         const lista = this.listar(tabela); 
-        const novoItem = new ClasseModelo(dados); 
-        lista.push(novoItem); 
+        
+        const idCampo = Object.keys(dados).find(key => key.startsWith('id_'));
+        const idValor = idCampo ? dados[idCampo] : null;
+        
+        const index = idValor ? lista.findIndex(item => item[idCampo] === idValor) : -1;
+
+        if (index !== -1) {
+            lista[index] = { ...lista[index], ...dados };
+        } else {
+            lista.push(new ClasseModelo(dados));
+        }
+
         localStorage.setItem(tabela, JSON.stringify(lista)); 
-        return novoItem; 
     }
 
     atualizar(tabela, id, dados, ClasseModelo, idCampo) {
-        const erros = ClasseModelo.validar ? ClasseModelo.validar(dados) : []; 
-        if (erros.length) throw new Error(erros.join(' | ')); 
-
         const lista = this.listar(tabela); 
         const index = lista.findIndex(item => item[idCampo] === id);
-        if (index === -1) throw new Error('Registro não encontrado.');
-
-        // Atualiza os dados mantendo o ID original
-        lista[index] = { ...lista[index], ...dados, [idCampo]: id }; 
-        localStorage.setItem(tabela, JSON.stringify(lista)); 
-        return lista[index];
+        if (index !== -1) {
+            lista[index] = { ...lista[index], ...dados, [idCampo]: id }; 
+            localStorage.setItem(tabela, JSON.stringify(lista)); 
+        }
     }
 
     excluir(tabela, id, idCampo) {

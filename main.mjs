@@ -18,10 +18,7 @@ Object.assign(window, {
             AcadCtrl.renderAdminTrilhas(); 
             NegCtrl.renderAdminPlanos(); 
             InterCtrl.renderAdminAlunos(); 
-        } else { 
-            document.getElementById('tela-vitrine-cursos').classList.add('d-none');
-            document.getElementById('tela-sala-aula').classList.add('d-none');
-            document.getElementById('tela-vitrine-trilhas').classList.remove('d-none');
+        } else {
             InterCtrl.renderVitrineTrilhas(); 
         }
     },
@@ -32,18 +29,30 @@ Object.assign(window, {
         } else {
             if(confirm('Tem a certeza que deseja eliminar este item?')) { 
                 svc.excluir(tab, id, pk); 
-                if (typeof window[renderFunctionName] === 'function') window[renderFunctionName]();
+                if (typeof window[renderFunctionName] === 'function') {
+                    window[renderFunctionName]();
+                }
             }
         }
     },
 
     abrirModal: (id) => {
-        document.querySelector(`#${id} form`)?.reset();
-        const hiddenId = document.querySelector(`#${id} input[type="hidden"]`);
-        if(hiddenId) hiddenId.value = '';
+        const form = document.querySelector(`#${id} form`);
+        if (form) form.reset(); 
+        
+        const hiddenInputs = document.querySelectorAll(`#${id} input[type="hidden"]`);
+        hiddenInputs.forEach(input => input.value = '');
+        
         bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
     },
 
+    // ALUNOS
+    prepararEdicaoAluno: InterCtrl.prepararEdicaoAluno,
+    salvarAluno: InterCtrl.salvarAluno,
+    visualizarCertificadoAdmin: InterCtrl.visualizarCertificadoAdmin,
+    renderAdminAlunos: InterCtrl.renderAdminAlunos, 
+
+    // ACADÉMICO
     prepararEdicaoCategoria: AcadCtrl.prepararEdicaoCategoria,
     prepararEdicaoCurso: AcadCtrl.prepararEdicaoCurso,
     prepararEdicaoModulo: AcadCtrl.prepararEdicaoModulo,
@@ -51,11 +60,6 @@ Object.assign(window, {
     prepararEdicaoTrilha: AcadCtrl.prepararEdicaoTrilha,
     prepararEdicaoPlano: NegCtrl.prepararEdicaoPlano,
     
-    // Novas Funções de Aluno
-    prepararEdicaoAluno: InterCtrl.prepararEdicaoAluno,
-    salvarAluno: InterCtrl.salvarAluno,
-    visualizarCertificadoAdmin: InterCtrl.visualizarCertificadoAdmin,
-
     renderAdminCategorias: AcadCtrl.renderAdminCategorias,
     renderAdminCursos: AcadCtrl.renderAdminCursos,
     renderAdminModulosAulas: AcadCtrl.renderAdminModulosAulas,
@@ -68,6 +72,7 @@ Object.assign(window, {
     salvarTrilha: AcadCtrl.salvarTrilha,
     vincularCursoTrilha: AcadCtrl.vincularCursoTrilha,
 
+    // ALUNO INTERAÇÃO
     abrirTrilha: InterCtrl.abrirTrilha,
     iniciarMatricula: InterCtrl.iniciarMatricula,
     confirmarMatricula: InterCtrl.confirmarMatricula,
@@ -76,16 +81,16 @@ Object.assign(window, {
     prepararCheckout: InterCtrl.prepararCheckout,
     confirmarPagamentoPlano: InterCtrl.confirmarPagamentoPlano,
     
-    voltarParaTrilhas: () => {
-        document.getElementById('tela-vitrine-cursos').classList.add('d-none');
-        document.getElementById('tela-certificado-real').style.display = 'none';
-        document.getElementById('tela-vitrine-trilhas').classList.remove('d-none');
+    voltarParaTrilhas: () => { 
+        document.getElementById('tela-vitrine-cursos').classList.add('d-none'); 
+        document.getElementById('tela-vitrine-trilhas').classList.remove('d-none'); 
     },
-    voltarParaCursos: () => {
-        document.getElementById('tela-sala-aula').classList.add('d-none');
-        document.getElementById('tela-vitrine-cursos').classList.remove('d-none');
+    voltarParaCursos: () => { 
+        document.getElementById('tela-sala-aula').classList.add('d-none'); 
+        document.getElementById('tela-vitrine-cursos').classList.remove('d-none'); 
     },
 
+    // NEGÓCIO
     renderAdminPlanos: NegCtrl.renderAdminPlanos,
     salvarPlano: NegCtrl.salvarPlano
 });
