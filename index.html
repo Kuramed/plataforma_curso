@@ -48,10 +48,10 @@
                     <div class="nav flex-column nav-pills nav-admin bg-white p-3 rounded shadow-sm">
                         <button class="nav-link active mb-2" data-bs-toggle="pill" data-bs-target="#adm-cats">Categorias</button>
                         <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-cursos">Cursos</button>
-                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-modulos">Módulos & Aulas</button>
-                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-trilhas">Trilhas & Vínculos</button>
-                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-planos">Planos (Financeiro)</button>
-                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-alunos">Alunos & Matrículas</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-modulos">Módulos e Aulas</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-trilhas">Trilhas e Vínculos</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-planos">Planos Financeiros</button>
+                        <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#adm-alunos">Alunos e Matrículas</button>
                     </div>
                 </div>
                 <div class="col-md-9">
@@ -62,10 +62,13 @@
                         </div>
                         <div class="tab-pane fade" id="adm-cursos">
                             <div class="d-flex justify-content-between mb-3"><h5>Cursos</h5><button class="btn btn-sm btn-primary" onclick="abrirModal('modalCurso')">+ Novo Curso</button></div>
-                            <table class="table table-sm small"><tbody id="tbl-admin-cursos"></tbody></table>
+                            <table class="table table-sm small">
+                                <thead><tr><th>Curso</th><th>Categoria</th><th>Carga</th><th class="text-end">Ações</th></tr></thead>
+                                <tbody id="tbl-admin-cursos"></tbody>
+                            </table>
                         </div>
                         <div class="tab-pane fade" id="adm-modulos">
-                            <div class="d-flex justify-content-between mb-3"><h5>Módulos & Aulas</h5><button class="btn btn-sm btn-success" onclick="abrirModal('modalModulo')">+ Novo Módulo</button></div>
+                            <div class="d-flex justify-content-between mb-3"><h5>Módulos e Aulas</h5><button class="btn btn-sm btn-success" onclick="abrirModal('modalModulo')">+ Novo Módulo</button></div>
                             <div id="lista-admin-modulos-aulas"></div>
                         </div>
                         <div class="tab-pane fade" id="adm-trilhas">
@@ -87,7 +90,7 @@
                         <div class="tab-pane fade" id="adm-alunos">
                             <div class="d-flex justify-content-between mb-3"><h5>Gestão de Alunos Matriculados</h5></div>
                             <table class="table table-hover table-sm small">
-                                <thead><tr><th>Aluno</th><th>Cursos Matriculados</th><th>Status Financeiro</th></tr></thead>
+                                <thead><tr><th>Aluno</th><th>Cursos Matriculados</th><th>Status Financeiro</th><th>Certificados</th><th class="text-end">Ações</th></tr></thead>
                                 <tbody id="tbl-admin-alunos"></tbody>
                             </table>
                         </div>
@@ -109,7 +112,10 @@
 
             <div id="tela-vitrine-cursos" class="d-none">
                 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                    <div><h3 id="titulo-trilha-selecionada" class="mb-0">Cursos da Trilha</h3></div>
+                    <div>
+                        <h3 id="titulo-trilha-selecionada" class="mb-0">Cursos da Trilha</h3>
+                        <p class="text-muted small mb-0 mt-1">Siga a ordem dos módulos para desbloquear os próximos conteúdos.</p>
+                    </div>
                     <button class="btn btn-outline-secondary btn-sm" onclick="voltarParaTrilhas()">Voltar às Trilhas</button>
                 </div>
                 <div class="row" id="grid-vitrine-cursos"></div>
@@ -141,10 +147,11 @@
                 <h2 id="cert-nome-aluno" class="text-primary">[Nome do Aluno]</h2>
                 <p id="cert-tipo-texto">concluiu com êxito a trilha de</p>
                 <h3 id="cert-nome-curso">[Nome do Curso ou Trilha]</h3>
+                <p class="mt-2">Com uma carga horária total de: <strong id="cert-horas"></strong> horas</p>
                 <div class="mt-5 border-top pt-3 w-50 mx-auto">Assinatura da Direção Académica</div>
-                <p class="small text-muted mt-4">Código de Autenticidade: <strong id="cert-codigo"></strong></p>
+                <p class="small text-muted mt-4">Concluído a: <strong id="cert-data"></strong> | Código de Autenticidade: <strong id="cert-codigo"></strong></p>
                 <div class="selo"></div>
-                <div class="mt-4"><button class="btn btn-dark" onclick="window.print()">Imprimir Diploma</button> <button class="btn btn-link" onclick="voltarParaTrilhas()">Voltar ao Início</button></div>
+                <div class="mt-4"><button class="btn btn-dark" onclick="window.print()">Imprimir Diploma</button> <button class="btn btn-link" onclick="location.reload()">Voltar ao Início</button></div>
             </div>
         </div>
     </div>
@@ -191,6 +198,12 @@
         <input type="number" id="pla-meses" class="form-control" placeholder="Duração (meses)" required>
     </div><div class="modal-footer"><button type="submit" class="btn btn-danger w-100">Guardar Plano</button></div></form></div></div></div>
 
+    <div class="modal fade" id="modalAluno" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><form id="form-aluno" onsubmit="event.preventDefault(); salvarAluno();"><div class="modal-header"><h5 id="titulo-modal-aluno">Editar Aluno</h5></div><div class="modal-body">
+        <input type="hidden" id="alu-id">
+        <input type="text" id="alu-nome" class="form-control mb-2" placeholder="Nome Completo" required>
+        <input type="email" id="alu-email" class="form-control mb-2" placeholder="E-mail" required>
+    </div><div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Guardar Alterações do Aluno</button></div></form></div></div></div>
+
     <div class="modal fade" id="modalMatricula" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center"><form id="form-matricula" onsubmit="event.preventDefault(); confirmarMatricula();">
         <h5 class="mb-3">Crie a sua conta para começar</h5>
         <input type="hidden" id="mat-id-curso">
@@ -201,10 +214,16 @@
     </form></div></div></div>
 
     <div class="modal fade" id="modalCheckout" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center border-success border-2 shadow-lg">
-        <h5 class="text-success fw-bold mb-3">🔒 Checkout Seguro</h5>
-        <p class="text-muted mb-1">Você está prestes a adquirir o plano:</p>
+        <h5 class="text-success fw-bold mb-3">Checkout Seguro</h5>
+        <p class="text-muted mb-1">A adquirir o plano:</p>
         <h4 id="check-nome-plano" class="fw-bold"></h4>
         <h2 id="check-preco-plano" class="text-primary my-3"></h2>
+        <select id="check-metodo-pagamento" class="form-select mb-4">
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="MB Way">MB Way</option>
+            <option value="Referência Multibanco">Referência Multibanco</option>
+            <option value="PayPal">PayPal</option>
+        </select>
         <button class="btn btn-success btn-lg w-100 rounded-pill shadow-sm" onclick="confirmarPagamentoPlano()">Finalizar Compra Seguro</button>
         <button class="btn btn-link text-muted mt-2 text-decoration-none" data-bs-dismiss="modal">Cancelar operação</button>
     </div></div></div>

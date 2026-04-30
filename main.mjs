@@ -50,6 +50,11 @@ Object.assign(window, {
     prepararEdicaoAula: AcadCtrl.prepararEdicaoAula,
     prepararEdicaoTrilha: AcadCtrl.prepararEdicaoTrilha,
     prepararEdicaoPlano: NegCtrl.prepararEdicaoPlano,
+    
+    // Novas Funções de Aluno
+    prepararEdicaoAluno: InterCtrl.prepararEdicaoAluno,
+    salvarAluno: InterCtrl.salvarAluno,
+    visualizarCertificadoAdmin: InterCtrl.visualizarCertificadoAdmin,
 
     renderAdminCategorias: AcadCtrl.renderAdminCategorias,
     renderAdminCursos: AcadCtrl.renderAdminCursos,
